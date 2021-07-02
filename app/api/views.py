@@ -6,7 +6,7 @@ from rest_framework.decorators import action
 
 
 class SnippetSerializer(serializers.HyperlinkedModelSerializer):
-    owner = serializers.ReadOnlyField(source='owner.username')
+    owner = serializers.HyperlinkedIdentityField(view_name='user-detail')
     highlight = serializers.HyperlinkedIdentityField(
         view_name='snippet-highlight',
         format='html'
@@ -28,12 +28,6 @@ class SnippetSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class SnippetViewSet(viewsets.ModelViewSet):
-    """
-    This viewset automatically provides `list`, `create`, `retrieve`,
-    `update` and `destroy` actions.
-
-    Additionally we also provide an extra `highlight` action.
-    """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly,
