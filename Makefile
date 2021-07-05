@@ -2,14 +2,18 @@ PYTHON     := $(shell which python)
 PYTHON_PIP := $(shell which pip)
 
 help:
-	@echo "make venv"
-	@echo ". venv/bin/activate  = Activate virtual environment"
-	@echo "make init            = Initiate project"
-	@echo "make app             = Create new app"
-	@echo "make reset           = Reset project"
-	@echo "make test            = Test project"
-	@echo "deactivate"
-	@echo "make clean-all"
+	@echo
+	@echo "COMMANDS:"
+	@echo
+	@echo " make venv              : Generate virtual environment"
+	@echo " . venv/bin/activate    : Activate virtual environment"
+	@echo " make init              : Initiate project"
+	@echo " make app               : Create new app"
+	@echo " make reset             : Reset project"
+	@echo " make test              : Test project"
+	@echo " deactivate             : Deactivate virital environment"
+	@echo " make clean-all         : Remove all temporary files"
+	@echo
 
 check_env:
 ifeq ($(VIRTUAL_ENV), )
@@ -38,10 +42,10 @@ endif
 
 venv: clean-all
 ifeq ($(VIRTUAL_ENV), )
-	@python3 -m pip install --upgrade pip
-	@python3 -m venv venv \
-	&& echo "Use . venv/bin/activate" \
-	|| (python3 -m pip install --user virtualenv && python3 -m venv venv)
+	@(python3 -m venv venv || virtualenv venv 1> /dev/null) \
+		&& echo "Use '. venv/bin/activate' to start development."
+	@./venv/bin/python -m pip install --upgrade pip 2> /dev/null \
+		|| echo "Error: Pip module is missing."
 endif
 
 setup:
