@@ -1,6 +1,7 @@
 PYTHON     := $(shell which python)
 PYTHON_PIP := $(shell which pip)
 APP_ROOT   := $(shell pwd)/app
+API_ROOT   := $(shell pwd)/api
 
 help:
 	@echo
@@ -24,15 +25,15 @@ ifeq ($(VIRTUAL_ENV), )
 endif
 
 reset:
-	@find $(APP_ROOT) -path ./venv -prune -o \
-		\( -name __pycache__ -o -name db.sqlite3 -o -name .env \) \
+	@find $(API_ROOT) -name __pycache__ -exec rm -rf {} +
+	@find $(APP_ROOT) \( -name __pycache__ -o -name db.sqlite3 -o -name .env \) \
 		-exec rm -rf {} +
 	@rm -r \
-		./app/authentication/migrations/* \
-		./app/api/migrations/*
+		$(APP_ROOT)/authentication/migrations/* \
+		$(APP_ROOT)/api/migrations/*
 	@touch \
-		./app/authentication/migrations/__init__.py \
-		./app/api/migrations/__init__.py
+		$(APP_ROOT)/authentication/migrations/__init__.py \
+		$(APP_ROOT)/api/migrations/__init__.py
 
 clean-all:
 ifeq ($(VIRTUAL_ENV), )
@@ -56,7 +57,7 @@ setup:
 app:
 	@printf "Enter app name: " && read NAME; $(PYTHON) manage.py startapp $$NAME
 
-migrate: check_env
+migration: check_env
 	@$(PYTHON) $(APP_ROOT)/manage.py makemigrations
 	@$(PYTHON) $(APP_ROOT)/manage.py migrate
 
@@ -65,7 +66,7 @@ super: check_env
 	@$(PYTHON) $(APP_ROOT)/manage.py createsuperuser --username admin
 
 run: check_env
-	@if ! test -f ".env"; then \
+	@if ! test -f "$(APP_ROOT)/.env"; then \
 		echo "Error: Need to setup project before running." && exit 1; \
 	fi
 	@$(PYTHON) $(APP_ROOT)/manage.py runserver 0.0.0.0:8000
@@ -73,8 +74,8 @@ run: check_env
 test:
 	@$(PYTHON) $(APP_ROOT)/manage.py test
 
-init: setup migrate super run
+init: setup migration super run
 
-dev: migrate run
+dev: migration run
 
 .PHONY: reset migrate setup init run
